@@ -1,0 +1,25 @@
+{
+  "name": "pianomidi",
+  "version": "1.0.0",
+  "description": "piano electonique",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trousse/PianoMIDI.git"
+  },
+  "author": "Thomas Rousse",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/trousse/PianoMIDI/issues"
+  },
+  "homepage": "https://github.com/trousse/PianoMIDI#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "fs": "0.0.1-security",
+    "midi-json-parser": "^4.2.9"
+  }
+}
