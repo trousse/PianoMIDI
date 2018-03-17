@@ -23,6 +23,8 @@
     "fs": "0.0.1-security",
     "i2c": "*",
     "midi-json-parser": "^4.2.9",
-    "onoff": "*"
+    "onoff": "*",
+    "raspi": "^5.0.2",
+    "raspi-i2c": "^6.1.0"
   }
 }
