@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/trousse/PianoMIDI.git"
   },
-  "author": "Thomas Rousse",
+  "author": "Maxime Rebillard, Robin Neu, Julien Labarre, Thomas Rousse",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/trousse/PianoMIDI/issues"
@@ -18,8 +18,11 @@
   "homepage": "https://github.com/trousse/PianoMIDI#readme",
   "dependencies": {
     "body-parser": "^1.18.2",
+    "ejs": "^2.5.7",
     "express": "^4.16.2",
     "fs": "0.0.1-security",
-    "midi-json-parser": "^4.2.9"
+    "i2c": "*",
+    "midi-json-parser": "^4.2.9",
+    "onoff": "*"
   }
 }
