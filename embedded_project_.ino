@@ -44,6 +44,7 @@ char* tab = NULL;
 
 int* test = (int*)malloc(6 * sizeof(int));
 bool startMessagePassed = false;
+bool stopMessage = false;
 
 //NO LONGER USED
 // variables for calibrating the LDR
@@ -67,8 +68,10 @@ void copy_array(int* array1, int* array2) {
 //function that initialize the led's array to 0
 void initialize_leds_arrays() {
   for (int i = 0; i < numberOfPin; i++) {
+    array_temp_prev[i] = 0;
     array_led1[i] = 0;
     array_led2[i] = 0;
+    array_temp_next[i] = 0;
   }
 
 }
@@ -207,7 +210,7 @@ void apply_led_arrays() {
   for (int i = 0; i < numberOfPin; i++) {
     digitalWrite(i + 2 + numberOfPin, array_led2[i]);
   }
-  Serial.println("Arrays applied to LED1 and LED2 !");
+  //Serial.println("Arrays applied to LED1 and LED2 !");
   delay(1000);//>>>>>>>>>change the position of this
 }
 
@@ -231,6 +234,7 @@ void create_send_json() {
 // the data received are like "0 1 1 1 0 1"
 //we will use the "data" array
 void receiveData() {
+  //if this is the start of the game (is executed one time ONLY)
   if (!startMessagePassed) {
     Serial.println("boucle startMessagePassed");
     int u = 0;
@@ -238,35 +242,57 @@ void receiveData() {
       tab[u] = (char)Wire.read();
       Serial.println(tab[u]);
       u++;
-      startMessagePassed = true;
     }
+      if(isMessageStart(tab)){
+        startMessagePassed = true;
+        Serial.println("Start Message => OK");
+      }
+      else {
+        Serial.println("Please begin with a Start Message First");
+      }
+    
   }
-  else {
+  //if the start message has been executed
+  else if (startMessagePassed) {
     Serial.println("other boucle");
     int v = 0;
     //get the line
     while (Wire.available()) {
       //fill the data array
-      data[v] = Wire.read();
+      data[v] = (char)Wire.read();
       v++;
     }
-    test_displayData(data);
-    copy_array(array_temp_prev, data);
-    //switch the led's array (only the data structure)
-    switch_led_arrays();
-    //apply the led's array
-    apply_led_arrays();
-    if (row_count > Led_rows) {
-      //get the data from the user
-      get_user_data_button();
-      //compare the array_temp_next with the user command
-      comparision();
-      test_comparision();
-      //create json file
-      create_send_json();
+    //check if there is a stop message
+    if (isMessageStop(data)) {
+      //reinitialize the led and apply the values
+      initialize_leds_arrays();
+      apply_led_arrays();
+      //reinitialize startMessagePassed
+      startMessagePassed = false;
+      //reinit the counter of rows
+      row_count = 0;
+    }
+    else {
+      test_displayData(data);
+      copy_array(array_temp_prev, data);
+      //switch the led's array (only the data structure)
+      switch_led_arrays();
+      //apply the led's array
+      apply_led_arrays();
+      if (row_count >= Led_rows) {
+        Serial.println("row > 2");
+        //get the data from the user
+        get_user_data_button();
+        //compare the array_temp_next with the user command
+        comparision();
+        test_comparision();
+        //create json file
+        create_send_json();
+        row_count++;
+      }
+      else row_count++;
     }
   }
-  row_count++;
 }
 //***********************************************************
 
@@ -423,10 +449,10 @@ bool isMessageStart(char tab []) {
   return true;
 }
 
-bool isMessageStop(char tab []) {
+bool isMessageStop(int tab []) {
   String str = "stop";
   for (int i = 0; i < str.length(); i++) {
-    if (str[i] != tab[i]) return false;
+    if (str[i] != (char)tab[i]) return false;
   }
   return true;
 }
