@@ -45,7 +45,7 @@ i2c.writeSync(0x12,starting_buffer);
 
 function sendData(i2c){
 //values for the leds
-values = new Uint8Array(6);
+values = new Uint8Array(4);
 for(var i = 0; i < values.length; i++){
 
 values[i] = data[i];
