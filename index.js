@@ -1,12 +1,11 @@
 var fs = require("fs");
 var MidiConvert = require('@pioug/MidiConvert');
-var file = ".\\MIDISong.mid" ;
-var app = require('express').express();
+var file = "./MIDISong.mid" ;
+var app = require('express');
 const raspi = require('raspi');
 const I2C = require('raspi-i2c').I2C;
-
 var address = 0x12;
-var wire = new i2c(address, {device: '/dev/i2c-1'});
+var wire = new I2C(address, {device: '/dev/i2c-1'});
 //var MIDI_manager = require(".\\FTP.js")();
 
 /*app.get("/files",function(res,req){
@@ -100,6 +99,7 @@ var parseJsonMidi = function(JsonMidi){
 var getLed = function(filePath){
   fs.readFile(filePath, 'binary', function(err, buffer) {
     if (err) return;
+	console.log(buffer);
     var jsonMidi = MidiConvert.parse(buffer);
     filtrePianoJsonMidi(jsonMidi)
     .then(function(piano){
@@ -118,7 +118,6 @@ function start(i2c){
 
 var finished = Boolean(false);
 //create an array
-var array1 = new Array("start");
 //assign the value "start"
 //array1.push('start');
 //assign the array to the buffer
@@ -140,8 +139,9 @@ values[i] = data[i];
 console.log(values[i]);
 
 }
-const buf = new Buffer(values.buffer);
+const buf = new Buffer.from(values.buffer,'utf8');
 i2c.writeSync(0x12,buf);
+
 //i2c.writeByteSync(0x12,values);
 
 }
@@ -154,36 +154,35 @@ i2c.writeSync(0x12,stopping_buffer);
 
 }
 
-else console.log("please check the parameters");
 
-
-});
 var interval = 20;
 
-var Start = function(jsonMidi){
+var Start = function(i2c,jsonMidi){
   var enregi = [];
   var led = getLed(file);
   var timeI = 0;
   var clock = 60000000/jsonMidi.transport.bpm;
+
   start(i2c);
-  sendData(led,interval,timeI,clock,enregi);
+console.log("deb");
+  sendData(i2c,led,interval,timeI,clock,enregi);
 }
 
-var sendData= function(ledTab,interval,timeI,clock,enregi){
+var sendData= function(i2c,ledTab,interval,timeI,clock,enregi){
   send(i2c,ledTab[timeI]);
     readWord(0x12, function(err,dat){
       enregi.push(dat,timeI);
       if(timeI<50000){
-        setTimeout(sendData(ledtab,interval,timeI+1,clock,enregi), clock);
+        setTimeout(sendData(i2c,ledtab,interval,timeI+1,clock,enregi), clock);
 
       }
       else{
-        end(enregi);
+        end(i2c,enregi);
       }
-  }
-});
+  });
+}
 
-var end = function(enregi){
+var end = function(i2c,enregi){
   stop(i2c);
   handle(enregi);
 }
@@ -194,9 +193,10 @@ var handle = function(enregi){
 
 raspi.init(() => {
 const i2c = new I2C();
+
   fs.readFile(file, 'binary', function(err, buffer) {
     json  = MidiConvert.parse(buffer);
-    Start(json);
-    }
-  }
-}
+    Start(i2c,json);
+    })
+  })
+

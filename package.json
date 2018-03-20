@@ -23,6 +23,8 @@
     "express": "^4.16.2",
     "fs": "0.0.1-security",
     "i2c": "*",
-    "onoff": "*"
+    "onoff": "*",
+    "raspi": "^5.0.2",
+    "raspi-i2c": "^6.1.0"
   }
 }
